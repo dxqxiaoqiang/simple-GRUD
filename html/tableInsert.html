@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="0">
+<% include("/common/common_css.html"){} %>
+<!--     <style type="text/css"> -->
+<!-- /*         html, body, .layui-ps-inputMessage-box { */ -->
+<!-- /*             height: 100%; */ -->
+<!-- /*             overflow: hidden; */ -->
+<!-- /*         } */ -->
+
+<!-- /*         .layui-form-label { */ -->
+<!-- /*             width: 172px; */ -->
+<!-- /*         } */ -->
+        
+<!-- <!--     </style> --> 
+     <style>
+        html,body,.layui-ps-inputMessage-box{height:100%;}
+    </style>
+</head>
+<body>
+<div class="layui-ps-inputMessage-box">
+    <div class="returnBack"><a href="javascript:back('table/tableList')"><i class="iconfont icon-fanhui"></i>返回</a>
+    </div>
+    <form class="layui-form tenant_add" action="">
+        <div class="Input_box">
+            <blockquote class="layui-elem-quote">新增用户</blockquote>
+            <!-- 隐藏的input：包括：用户id，创建时间-->
+             <input id = "inputId" type="hidden" name="id" value="${table.id}" />  
+            <div class="layui-form-item">
+                 <label class="layui-form-label"><span class="required">*</span>标题</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" value="${table.title}" lay-verify="required"
+                           placeholder="标题"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            
+             <div class="layui-form-item">
+                 <label class="layui-form-label"><span class="required">*</span>内容</label>
+                <div class="layui-input-block">
+                    <input type="text" name="content" value="${table.content}" lay-verify="required"
+                           placeholder="内容"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                 <label class="layui-form-label"><span class="required">*</span>发布时间</label>
+                <div class="layui-input-block">
+                    <input type="text" name="createTimeStr" value="${table.createTimeStr}" lay-verify="required"
+                           placeholder="发布时间" id="createTimeStr"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+<!--            <div class="layui-form-item"> -->
+<!--                  <label class="layui-form-label"><span class="required">*</span>是否公开</label> -->
+<!--                 <div class="layui-input-block"> -->
+<!--                     <input type="text" name="istohome" value="${table.istohome}" lay-verify="required" -->
+<!--                            placeholder="是否公开" -->
+<!--                            autocomplete="off" class="layui-input">                         -->
+<!--                 </div> -->
+<!--             </div> -->
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="required">*</span>是否公开</label>
+<!--                                                  重点看看下面的 -->
+                <div class="layui-input-block" style="width: 520px"; >
+                    <select name="istohome" id="tableIsToHome" lay-verify="required" >
+                        <option value="0">可用</option>
+                        <option value="1">不可用</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="layui-form-item last-element-bottom">
+                <div class="layui-input-block" style="margin-left:218px;">
+                    <button class="layui-btn layui-btn-normal" lay-submit lay-filter="formDemo" id="postData">立即提交
+                    </button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+<%
+include("/common/common_js.html"){}
+%>
+
+<script type="text/javascript">
+    var form = layui.form;
+    
+   layui.use('laydate', function () {
+       var laydate = layui.laydate;
+       laydate.render({
+           elem: '#createTimeStr'
+       });
+   });
+    //判断是否为修改，若是则修改标题和其他的展示效果
+    var valueStr = "${table.id}";
+    if (valueStr != '') {
+        setTitleState('修改角色');
+    } else {
+    }
+    //监听提交
+
+    form.on('submit(formDemo)', function (data) {
+
+        $.ajax({
+            //上传文件的url
+            url: "${ctxPath }/table/insertTable",
+
+            type: "POST",
+
+            dataType: "json",
+            
+            data: data.field,
+            success: function (data) {
+//             	alert(data);
+                layer.confirm('保存成功!', {icon: 1, title: '提示'}, function (index) {
+
+                    cancel();
+
+                    layer.closeAll();
+
+                });
+
+            },
+
+            error: function () {
+
+                layer.alert('保存失败', {icon: 1, title: '提示'}, function (index) {
+
+                    cancel();
+
+                     layer.closeAll();
+
+                });
+            }
+
+        });
+
+        return false;
+
+    });
+
+    window.onload = function () {
+        $('.layui-ps-inputMessage-box').mCustomScrollbar({
+            theme: "dark"
+        });
+        var option = "${table.istohome}"; // 为1或者为0
+        if (option) {
+            document.getElementById("tableIsToHome").options[option].selected = true;
+        }
+        form.render('select');
+
+    };
+    function cancel() {
+
+        location.href = "${ctxPath }/table/tableList";//主页
+
+    }
+
+</script>
+
+</body>
+</html>

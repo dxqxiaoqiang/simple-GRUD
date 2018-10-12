@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>增删改查</title>
+ <%include("/common/common_css.html"){}%>
+</head>
+<body>
+<div class="layui-ps-box">
+    <div class="layui-ps-header-search">
+         <input type="text" id ="id" class="layui-input layui-btn-primary" placeholder="请输入id" autocomplete="off"> 
+         <button class="layui-btn layui-btn-primary" onclick="javascript:queryResource();"><i
+                  class="layui-icon">&#xe615;</i>查询
+         </button>
+    </div>
+    
+    <div class="layui-ps-button-box">
+        <button class="layui-btn layui-btn-normal" onclick="javascript:addData();">新增</button>
+        <button class="layui-btn layui-btn-warm" onclick="javascript:updateData()">修改</button>
+        <button class="layui-btn layui-btn-danger" onclick="javascript:deleteData()">删除</button>
+    </div>
+      <script type="text/html" id="flagTpl"> 
+        {{# if (d.flag == 0) { }}
+        可用
+        {{# } else if (d.flag == 1) { }}
+        不可用
+        {{# } }}
+
+    </script>
+
+   <table  id ="noticeList"></table>
+</div>
+  <%include("/common/common_js.html"){}%>
+<script type="text/javascript">
+    var resultHeight = tableAutoHeight()
+    var table = layui.table;
+    table.render({
+    	elem:'#noticeList',
+    	id:'noticeListTable',
+    	url:webroot+'table/list',
+    	page: true,
+    	height:resultHeight,
+    	cols:[[
+    		{checkbox:true, LAY_CHECKED:false},
+    		{field:'id',title:'id',width:50,sort:true},
+    		{field:'title',title:'标题',width:150},
+    		{field:'content',title:'内容',width:300,},
+    		{field:'createTimeStr',title:'发布时间',width:150},
+    		{field:'istohome',title:'是否公开',width:150,
+     			align:'left',templet:'#flagTpl'
+    			},	
+    	  ]],
+    	  skin:'nob',
+    	  even:true,
+    	  limits:[10,15,20],
+    	  limit:10,
+    	  done:function(res,curr,count){
+    		  noTableData('#noticeList')
+    	  }
+    	
+    });
+//     查询数据
+       function queryResource(){
+	   var params = {};
+	   params.id = $("#id").val();
+	   table.reload('noticeListTable',{
+		   url:'${ctxPath}/table/list',
+		   where:params,
+		   done:function(res,curr,count){
+			   noTableData('#noticeList')//table.render中的elem
+		   }
+	   });
+	
+}
+//  删除数据
+        function deleteData(){
+	         var checkStatus= table.checkStatus('noticeListTable');// table.render中的id
+	         if (checkStatus.data.length !=1){
+	        	 layer.alert('请选择一条数据')
+	        	 return;
+	         }
+	         var id = checkStatus.data[0].id;//选取第一个的elem
+	         layer.confirm('确认要删除',function(index){
+	        	 $.ajax({
+	        		 url:"${ctxPath}/table/dele",
+	        		 type:"POST",
+	        	     dataType: "json",
+	        	     data: {"id": id},
+
+	                 success: function (data) {
+
+	                     layer.confirm('删除成功!', {icon: 6, title: '提示'}, function (index) {
+
+	                         location.href = "${ctxPath }/table/tableList";
+
+	                         layer.closeAll();
+
+	                     });
+
+	                 },
+	        	     
+	        	 })
+	         })
+	         
+    }
+    //更新数据
+    function updateData() {
+        var checkStatus = table.checkStatus('noticeListTable');
+        if (checkStatus.data.length != 1) {
+            layer.alert('请选择一条数据!', {icon: 1});
+            return;
+        }
+        var id = checkStatus.data[0].id;//选取数据第一个的id
+//         console.log("id = " + id);
+        parent.$("#content").attr("src", webroot + "table/tableInsert?id=" + id);
+    }
+    //插入数据
+    function addData() {
+        parent.$("#content").attr("src", webroot +  "table/tableInsert");
+    }
+    
+ </script>
+</body>
+</html>
